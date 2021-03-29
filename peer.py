@@ -1,4 +1,3 @@
-import builtins
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from twisted.python import threadable
@@ -7,6 +6,7 @@ from pathlib import Path
 from functools import partial
 from operator import itemgetter
 from sys import stderr
+from datetime import datetime
 
 threadable.init()
 
@@ -26,15 +26,18 @@ class Client(DatagramProtocol):
         self.transport.write("REGISTER".encode('utf-8'), self.__server)
 
     def stopProtocol(self):
-        print('\nBye', self.__id)
+        print(
+            f'\n[{self.__id[0]}:{self.__id[1]}: {str(datetime.today())}] Bye !!!')
 
     def connectionRefused(self):
-        print("Servidor está offline", file=stderr)
+        print(
+            f'[{self.__id[0]}:{self.__id[1]}: {str(datetime.today())}] Servidor está offline', file=stderr)
 
     def datagramReceived(self, datagram: bytes, addr):
         datagram = datagram.decode('utf-8')
 
-        print('Received datagram', datagram)
+        print(
+            f'[{self.__id[0]}:{self.__id[1]}: {str(datetime.today())}] Received datagram', datagram)
 
         if '|' in datagram:
             query, content = datagram.split('|', maxsplit=1)
@@ -65,7 +68,7 @@ class Client(DatagramProtocol):
                     '::> Digite o nome do arquivo que está procurando:')
                 evt = f'SEARCH_FILE|{file}'.encode('utf-8')
                 self.transport.write(evt, self.__server)
-            except builtins.Exception:
+            except Exception:
                 self.transport.write('LEAVE'.encode('utf-8'), self.__server)
                 return
 
@@ -121,7 +124,7 @@ class Client(DatagramProtocol):
             f'DOWNLOAD_COMPLETED|{filename}'.encode('utf-8'), addr)
 
     def __get_download_status(self, filename, addr):
-        print(f'Arquivo {filename} recebido com sucesso em {addr}')
+        print(f'[{self.__id[0]}:{self.__id[1]}: {str(datetime.today())}] Arquivo {filename} recebido com sucesso em {addr}')
 
     def __update(self, peer_list: str):
         addrs = peer_list.splitlines()
@@ -137,7 +140,7 @@ class Client(DatagramProtocol):
 
 if __name__ == '__main__':
     if not PUBLIC_FOLDER.exists():
-        print('Pasta compartilhada foi criada com sucesso.')
+        print(f'Pasta compartilhada foi criada com sucesso.')
         PUBLIC_FOLDER.mkdir()
 
     port = randint(5000, 6000)
