@@ -50,6 +50,7 @@ class Server(DatagramProtocol):
                 f'SEARCH_FILE_RESPONSE|{filename}-{addr}'.encode('utf-8'), eval(origin))
 
     def __leave(self, addr):
+        print(addr, 'is leaving')
         self.__peers.remove(addr)
         addrs = '\n'.join([str(peer) for peer in self.__peers])
 

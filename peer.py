@@ -1,3 +1,4 @@
+import builtins
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from twisted.python import threadable
@@ -5,6 +6,7 @@ from random import randint
 from pathlib import Path
 from functools import partial
 from operator import itemgetter
+from sys import stderr
 
 threadable.init()
 
@@ -23,8 +25,11 @@ class Client(DatagramProtocol):
     def startProtocol(self):
         self.transport.write("REGISTER".encode('utf-8'), self.__server)
 
+    def stopProtocol(self):
+        print('\nBye', self.__id)
+
     def connectionRefused(self):
-        print("Servidor está offline")
+        print("Servidor está offline", file=stderr)
 
     def datagramReceived(self, datagram: bytes, addr):
         datagram = datagram.decode('utf-8')
@@ -55,9 +60,14 @@ class Client(DatagramProtocol):
 
     def user_input(self):
         while True:
-            file = input('::> Digite o nome do arquivo que está procurando:')
-            evt = f'SEARCH_FILE|{file}'.encode('utf-8')
-            self.transport.write(evt, self.__server)
+            try:
+                file = input(
+                    '::> Digite o nome do arquivo que está procurando:')
+                evt = f'SEARCH_FILE|{file}'.encode('utf-8')
+                self.transport.write(evt, self.__server)
+            except builtins.Exception:
+                self.transport.write('LEAVE'.encode('utf-8'), self.__server)
+                return
 
     def __search_requested_file(self, message: str):
         exists = False
