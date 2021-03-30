@@ -7,6 +7,7 @@ from functools import partial
 from operator import itemgetter
 from sys import stderr
 from datetime import datetime
+import time
 
 threadable.init()
 
@@ -36,8 +37,8 @@ class Client(DatagramProtocol):
     def datagramReceived(self, datagram: bytes, addr):
         datagram = datagram.decode('utf-8')
 
-        print(
-            f'[{self.__id[0]}:{self.__id[1]}: {str(datetime.today())}] Received datagram', datagram)
+        # print(
+        #     f'[{self.__id[0]}:{self.__id[1]}: {str(datetime.today())}] Received datagram', datagram)
 
         if '|' in datagram:
             query, content = datagram.split('|', maxsplit=1)
@@ -92,9 +93,10 @@ class Client(DatagramProtocol):
 
     def __send_file_to_peer(self, filename, addr):
         with open(PUBLIC_FOLDER/filename, 'rb') as f:
-            for i, chunk in enumerate(iter(partial(f.read, 1024), b''), start=1):
+            for i, chunk in enumerate(iter(partial(f.read, 2048), b''), start=1):
                 self.transport.write(
                     f'DOWNLOAD_FILE|{filename}-{i}-{chunk}'.encode('utf-8'), addr)
+                time.sleep(0.005)
 
         self.transport.write(f'FINISH_UPLOAD|{filename}'.encode('utf-8'), addr)
 
