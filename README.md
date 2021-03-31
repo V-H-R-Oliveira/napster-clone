@@ -4,9 +4,9 @@ A simple napster clone built with Python 3 and Twister Framework.
 
 ## Authors
 
-- Thiago Ribeiro.
-- Vitor Oliveira.
-- Willian Mochila.
+- Thiago Ribeiro, 201711113030010 .
+- Vitor Oliveira, 201711113030004.
+- Willian Molina, 201711113030017.
 
 ## Components
 
